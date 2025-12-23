@@ -1,9 +1,13 @@
 wp.blocks.registerBlockType("ourblocktheme/mynotes", {
   title: "Henry University My Notes",
   edit: function () {
-    return wp.element.createElement("div", { className: "our-placeholder-block" }, "My Notes Placeholder")
+    return wp.element.createElement(
+      "div",
+      { className: "our-placeholder-block" },
+      "My Notes Placeholder"
+    );
   },
   save: function () {
-    return null
-  }
-})
+    return null;
+  },
+});

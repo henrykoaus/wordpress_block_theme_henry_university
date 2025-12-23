@@ -2,14 +2,16 @@
 
 add_action('rest_api_init', 'universityRegisterSearch');
 
-function universityRegisterSearch() {
+function universityRegisterSearch()
+{
   register_rest_route('university/v1', 'search', array(
     'methods' => WP_REST_SERVER::READABLE,
     'callback' => 'universitySearchResults'
   ));
 }
 
-function universitySearchResults($data) {
+function universitySearchResults($data)
+{
   $mainQuery = new WP_Query(array(
     'post_type' => array('post', 'page', 'professor', 'program', 'campus', 'event'),
     's' => sanitize_text_field($data['term'])
@@ -23,10 +25,10 @@ function universitySearchResults($data) {
     'campuses' => array()
   );
 
-  while($mainQuery->have_posts()) {
+  while ($mainQuery->have_posts()) {
     $mainQuery->the_post();
 
-    if (get_post_type() == 'post' OR get_post_type() == 'page') {
+    if (get_post_type() == 'post' or get_post_type() == 'page') {
       array_push($results['generalInfo'], array(
         'title' => get_the_title(),
         'permalink' => get_the_permalink(),
@@ -47,14 +49,14 @@ function universitySearchResults($data) {
       $relatedCampuses = get_field('related_campus');
 
       if ($relatedCampuses) {
-        foreach($relatedCampuses as $campus) {
+        foreach ($relatedCampuses as $campus) {
           array_push($results['campuses'], array(
             'title' => get_the_title($campus),
             'permalink' => get_the_permalink($campus)
           ));
         }
       }
-    
+
       array_push($results['programs'], array(
         'title' => get_the_title(),
         'permalink' => get_the_permalink(),
@@ -86,18 +88,17 @@ function universitySearchResults($data) {
         'description' => $description
       ));
     }
-    
   }
 
   if ($results['programs']) {
     $programsMetaQuery = array('relation' => 'OR');
 
-    foreach($results['programs'] as $item) {
+    foreach ($results['programs'] as $item) {
       array_push($programsMetaQuery, array(
-          'key' => 'related_programs',
-          'compare' => 'LIKE',
-          'value' => '"' . $item['id'] . '"'
-        ));
+        'key' => 'related_programs',
+        'compare' => 'LIKE',
+        'value' => '"' . $item['id'] . '"'
+      ));
     }
 
     $programRelationshipQuery = new WP_Query(array(
@@ -105,7 +106,7 @@ function universitySearchResults($data) {
       'meta_query' => $programsMetaQuery
     ));
 
-    while($programRelationshipQuery->have_posts()) {
+    while ($programRelationshipQuery->have_posts()) {
       $programRelationshipQuery->the_post();
 
       if (get_post_type() == 'event') {
@@ -133,7 +134,6 @@ function universitySearchResults($data) {
           'image' => get_the_post_thumbnail_url(0, 'professorLandscape')
         ));
       }
-
     }
 
     $results['professors'] = array_values(array_unique($results['professors'], SORT_REGULAR));
@@ -142,5 +142,4 @@ function universitySearchResults($data) {
 
 
   return $results;
-
 }
